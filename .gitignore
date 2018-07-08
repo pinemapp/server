@@ -1,0 +1,8 @@
+server
+.DS_Store
+
+vendor/
+
+config/config.*
+!config/config.go
+!config/config.yml

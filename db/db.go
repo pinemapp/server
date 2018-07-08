@@ -21,5 +21,7 @@ func InitORM() error {
 		db.LogMode(true)
 	}
 	ORM = db
+	migrate(db)
+
 	return nil
 }

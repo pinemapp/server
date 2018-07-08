@@ -9,12 +9,18 @@ import (
 	"github.com/pinem/server/config"
 	"github.com/pinem/server/controllers"
 	"github.com/pinem/server/db"
+	"github.com/pinem/server/utils/locale"
 )
 
 func main() {
 	conf := config.Get()
 
 	if err := db.InitORM(); err != nil {
+		log.Fatal(err)
+		os.Exit(-1)
+	}
+
+	if err := locale.InitLocale(); err != nil {
 		log.Fatal(err)
 		os.Exit(-1)
 	}

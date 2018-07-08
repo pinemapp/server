@@ -1,0 +1,7 @@
+#!/bin/sh
+
+pkill server && echo "Killing server process..."
+rm -f ./server && echo "Removing old server binary..."
+
+echo "Building & Restarting a new server instance..."
+go build . && ./server

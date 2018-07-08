@@ -8,3 +8,7 @@ db:
   name:
   user:
   password:
+
+i18n:
+  default: en
+  dir: config/locale

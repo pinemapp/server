@@ -4,10 +4,11 @@ import "fmt"
 
 type Config struct {
 	ENV  string
-	App  string   `yaml:"app"`
-	Host string   `yaml:"host"`
-	Port int      `yaml:"port"`
-	DB   dbStruct `yaml:"db"`
+	App  string     `yaml:"app"`
+	Host string     `yaml:"host"`
+	Port int        `yaml:"port"`
+	DB   dbStruct   `yaml:"db"`
+	I18n i18nStruct `yaml:"i18n"`
 }
 
 type dbStruct struct {
@@ -16,6 +17,11 @@ type dbStruct struct {
 	Name     string `yaml:"name"`
 	User     string `yaml:"user"`
 	Password string `yaml:""password`
+}
+
+type i18nStruct struct {
+	Default string `yaml:"default"`
+	Dir     string `yaml:"dir"`
 }
 
 func (c *Config) ServerAddr() string {

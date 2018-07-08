@@ -1,0 +1,15 @@
+- id: hello
+  translation: Hello World
+
+- id: errors_required
+  translation: "is required"
+- id: errors_email
+  translation: "is not a valid email address"
+- id: errors_max
+  translation: "too long"
+- id: errors_min
+  translation: "too short"
+- id: errors_unique
+  translation: "already exists"
+- id: errors_internal_server
+  translation: "internal server error"

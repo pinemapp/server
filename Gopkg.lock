@@ -8,6 +8,12 @@
   version = "v0.3.0"
 
 [[projects]]
+  name = "github.com/codegangsta/inject"
+  packages = ["."]
+  revision = "37d7f8432a3e684eef9b2edece76bdfa6ac85b39"
+  version = "v1.0-rc1"
+
+[[projects]]
   branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
@@ -37,6 +43,19 @@
   packages = ["."]
   revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
   version = "v0.16.0"
+
+[[projects]]
+  name = "github.com/go-redis/redis"
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto"
+  ]
+  revision = "35248155a505a84811be81a2aab1c423317447be"
+  version = "v6.7.2"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -99,6 +118,11 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+
+[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
@@ -120,6 +144,12 @@
   revision = "3c6ecd8f22c6f40fbeec94c000a069d7d87c7624"
 
 [[projects]]
+  name = "gopkg.in/go-oauth2/redis.v1"
+  packages = ["."]
+  revision = "552c26cf7a4e74359783690638df60018f64d7ff"
+  version = "v1.0.0"
+
+[[projects]]
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
   revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
@@ -132,6 +162,32 @@
   version = "v9.19.0"
 
 [[projects]]
+  name = "gopkg.in/oauth2.v3"
+  packages = [
+    ".",
+    "errors",
+    "generates",
+    "manage",
+    "models",
+    "server"
+  ]
+  revision = "6f608a6e0307a97455db74fa5297fd38cb249aa7"
+  version = "v3.8.4"
+
+[[projects]]
+  name = "gopkg.in/redis.v5"
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto"
+  ]
+  revision = "a16aeec10ff407b1e7be6dd35797ccf5426ef0f0"
+  version = "v5.2.9"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
@@ -140,6 +196,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c448d9422f443de8eb949aea4691c00d695622c8e4841b5d41207c2d1f113df5"
+  inputs-digest = "96d719dfa6e4fe1ef77a4d9f81804cdda1a3d96c1ff201357f97bdfc0757dc6d"
   solver-name = "gps-cdcl"
   solver-version = 1

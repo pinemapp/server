@@ -3,12 +3,13 @@ package config
 import "fmt"
 
 type Config struct {
-	ENV  string
-	App  string     `yaml:"app"`
-	Host string     `yaml:"host"`
-	Port int        `yaml:"port"`
-	DB   dbStruct   `yaml:"db"`
-	I18n i18nStruct `yaml:"i18n"`
+	ENV   string
+	App   string      `yaml:"app"`
+	Host  string      `yaml:"host"`
+	Port  int         `yaml:"port"`
+	DB    dbStruct    `yaml:"db"`
+	I18n  i18nStruct  `yaml:"i18n"`
+	Redis redisStruct `yaml:"redis"`
 }
 
 type dbStruct struct {
@@ -22,6 +23,13 @@ type dbStruct struct {
 type i18nStruct struct {
 	Default string `yaml:"default"`
 	Dir     string `yaml:"dir"`
+}
+
+type redisStruct struct {
+	Port     int    `yaml:"port"`
+	Host     string `yaml:"host"`
+	Db       int    `yaml:"db"`
+	Password string `yaml:"password"`
 }
 
 func (c *Config) ServerAddr() string {

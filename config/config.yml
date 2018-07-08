@@ -9,6 +9,12 @@ db:
   user:
   password:
 
+redis:
+  port:
+  host:
+  db:
+  password:
+
 i18n:
   default: en
   dir: config/locale

@@ -1,25 +1,19 @@
-package tokencontroller
+package oauth2controller
 
 import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pinem/server/config"
 	"github.com/pinem/server/controllers/router"
-	"github.com/pinem/server/models/users"
 	redis "gopkg.in/go-oauth2/redis.v1"
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/server"
 )
-
-type credentials struct {
-	Username string `json:"username"`
-	Password string `josn:"password"`
-}
 
 func init() {
 	conf := config.Get()
@@ -31,8 +25,25 @@ func init() {
 		DB:       conf.Redis.Db,
 	}))
 
-	clientStore := newClientStore()
+	clientStore := &ClientStore{}
 	m.MapClientStorage(clientStore)
+
+	tokenExp := time.Duration(conf.OAuth2.AccessTokenExp) * time.Second
+	refreshExp := time.Duration(conf.OAuth2.RefreshTokenExp) * time.Second
+	tokenConf := &manage.Config{
+		AccessTokenExp:    tokenExp,
+		RefreshTokenExp:   refreshExp,
+		IsGenerateRefresh: true,
+	}
+	m.SetPasswordTokenCfg(tokenConf)
+	m.SetAuthorizeCodeTokenCfg(tokenConf)
+	m.SetRefreshTokenCfg(&manage.RefreshingConfig{
+		AccessTokenExp:     tokenExp,
+		RefreshTokenExp:    refreshExp,
+		IsGenerateRefresh:  true,
+		IsRemoveAccess:     true,
+		IsRemoveRefreshing: true,
+	})
 
 	s := server.NewDefaultServer(m)
 	s.SetClientInfoHandler(clientInfoHandler)
@@ -46,18 +57,6 @@ func init() {
 	}))
 }
 
-func clientInfoHandler(req *http.Request) (string, string, error) {
-	// var cred credentials
-	// dec := json.NewDecoder(req.Body)
-
-	// if err := dec.Decode(&cred); err != nil {
-	// 	return "", "", err
-	// }
-	// return cred.Username, cred.Password, nil
-	username, password := req.FormValue("username"), req.FormValue("password")
-	return username, password, nil
-}
-
 func internalErrorHandler(err error) (r *errors.Response) {
 	log.Println(err.Error())
 	return
@@ -66,12 +65,4 @@ func internalErrorHandler(err error) (r *errors.Response) {
 func responseErrorHandler(r *errors.Response) {
 	log.Println(r.Error.Error())
 	return
-}
-
-func passAuthorizationHandler(username, password string) (string, error) {
-	user, err := users.Authenticate(username, password)
-	if err != nil {
-		return "", err
-	}
-	return strconv.FormatUint(uint64(user.ID), 10), nil
 }

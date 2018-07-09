@@ -25,3 +25,20 @@ func InitORM() error {
 
 	return nil
 }
+
+func Transaction(db *gorm.DB, cb func(*gorm.DB) error) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	err := cb(tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}

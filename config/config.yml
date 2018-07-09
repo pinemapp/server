@@ -9,6 +9,16 @@ db:
   user:
   password:
 
+redis:
+  port:
+  host:
+  db:
+  password:
+
 i18n:
   default: en
   dir: config/locale
+
+oauth2:
+  access_token_exp: 2592000
+  refresh_token_exp: 5184000

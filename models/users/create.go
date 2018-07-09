@@ -2,11 +2,9 @@ package users
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/pinem/server/db"
 	"github.com/pinem/server/errors"
 	"github.com/pinem/server/models"
-	"github.com/pinem/server/models/clients"
 	"github.com/pinem/server/utils/messages"
 	"github.com/pinem/server/utils/validators"
 	"github.com/pinem/server/utils/validators/users"
@@ -34,15 +32,9 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.User, error) {
 		Password: encrypted,
 	}
 
-	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
-		if err := tx.Create(&user).Error; err != nil {
-			return err
-		}
-		if err := createOAuth2Client(tx, &user); err != nil {
-			return err
-		}
-		return nil
-	})
+	if err := db.ORM.Create(&user).Error; err != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
@@ -57,11 +49,4 @@ func encryptPassword(pass string) (string, error) {
 		return "", err
 	}
 	return string(buf), nil
-}
-
-func createOAuth2Client(tx *gorm.DB, user *models.User) error {
-	if _, err := clients.Create(tx, user); err != nil {
-		return err
-	}
-	return nil
 }

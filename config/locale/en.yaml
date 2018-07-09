@@ -13,3 +13,7 @@
   translation: "already exists"
 - id: errors_internal_server
   translation: "internal server error"
+- id: errors_invalid_credentials
+  translation: "invalid credentials"
+- id: errors_forbidden
+  translation: "forbidden"

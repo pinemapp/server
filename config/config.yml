@@ -1,6 +1,7 @@
 app: Pinem
 port: 8080
 host: 127.0.0.1
+secret:
 
 db:
   port:
@@ -19,6 +20,5 @@ i18n:
   default: en
   dir: config/locale
 
-oauth2:
-  access_token_exp: 2592000
-  refresh_token_exp: 5184000
+token:
+  expires_at: 2592000

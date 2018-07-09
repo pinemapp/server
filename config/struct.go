@@ -6,13 +6,14 @@ import (
 
 type Config struct {
 	ENV    string
-	App    string       `yaml:"app"`
-	Host   string       `yaml:"host"`
-	Port   int          `yaml:"port"`
-	DB     dbStruct     `yaml:"db"`
-	I18n   i18nStruct   `yaml:"i18n"`
-	Redis  redisStruct  `yaml:"redis"`
-	OAuth2 oauth2Struct `yaml:"oauth2"`
+	App    string      `yaml:"app"`
+	Host   string      `yaml:"host"`
+	Port   int         `yaml:"port"`
+	Secret string      `yaml:"secret"`
+	DB     dbStruct    `yaml:"db"`
+	I18n   i18nStruct  `yaml:"i18n"`
+	Redis  redisStruct `yaml:"redis"`
+	Token  tokenStruct `yaml:"token"`
 }
 
 type dbStruct struct {
@@ -35,9 +36,8 @@ type redisStruct struct {
 	Password string `yaml:"password"`
 }
 
-type oauth2Struct struct {
-	AccessTokenExp  int `yaml:"access_token_exp"`
-	RefreshTokenExp int `yaml:"refresh_token_exp"`
+type tokenStruct struct {
+	ExpiresAt int64 `yaml:"expires_at"`
 }
 
 func (c *Config) ServerAddr() string {

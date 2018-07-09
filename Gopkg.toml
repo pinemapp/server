@@ -50,17 +50,13 @@
   version = "1.10.0"
 
 [[constraint]]
-  name = "gopkg.in/oauth2.v3"
-  version = "3.8.4"
-
-[[constraint]]
-  name = "gopkg.in/go-oauth2/redis.v1"
-  version = "1.0.0"
-
-[[constraint]]
   name = "github.com/go-redis/redis"
   version = "6.7.2"
 
 [[override]]
   name = "github.com/satori/go.uuid"
   revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+
+[[constraint]]
+  name = "github.com/dgrijalva/jwt-go"
+  version = "3.2.0"

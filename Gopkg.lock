@@ -8,10 +8,10 @@
   version = "v0.3.0"
 
 [[projects]]
-  name = "github.com/codegangsta/inject"
+  name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  revision = "37d7f8432a3e684eef9b2edece76bdfa6ac85b39"
-  version = "v1.0-rc1"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "master"
@@ -118,11 +118,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
-
-[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
@@ -144,12 +139,6 @@
   revision = "3c6ecd8f22c6f40fbeec94c000a069d7d87c7624"
 
 [[projects]]
-  name = "gopkg.in/go-oauth2/redis.v1"
-  packages = ["."]
-  revision = "552c26cf7a4e74359783690638df60018f64d7ff"
-  version = "v1.0.0"
-
-[[projects]]
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
   revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
@@ -162,32 +151,6 @@
   version = "v9.19.0"
 
 [[projects]]
-  name = "gopkg.in/oauth2.v3"
-  packages = [
-    ".",
-    "errors",
-    "generates",
-    "manage",
-    "models",
-    "server"
-  ]
-  revision = "6f608a6e0307a97455db74fa5297fd38cb249aa7"
-  version = "v3.8.4"
-
-[[projects]]
-  name = "gopkg.in/redis.v5"
-  packages = [
-    ".",
-    "internal",
-    "internal/consistenthash",
-    "internal/hashtag",
-    "internal/pool",
-    "internal/proto"
-  ]
-  revision = "a16aeec10ff407b1e7be6dd35797ccf5426ef0f0"
-  version = "v5.2.9"
-
-[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
@@ -196,6 +159,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "96d719dfa6e4fe1ef77a4d9f81804cdda1a3d96c1ff201357f97bdfc0757dc6d"
+  inputs-digest = "b88a8585d3bd6119f588d85ea787cac513d6be9c16870b969eb2a5479cb60d3f"
   solver-name = "gps-cdcl"
   solver-version = 1

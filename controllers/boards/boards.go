@@ -18,6 +18,7 @@ func init() {
 
 	br.GET("/", GetBoardsHandler)
 	br.POST("/", PostBoardsHandler)
+	br.GET("/:id", GetBoardHandler)
 	br.PATCH("/:id", PatchBoardHandler)
 	br.DELETE("/:id", DeleteBoardHandler)
 }
@@ -34,6 +35,20 @@ func GetBoardsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"boards": boards})
+}
+
+func GetBoardHandler(c *gin.Context) {
+	board, err := boards.GetOneForUser(c)
+	if err != nil {
+		if err == errors.ErrNotFound {
+			router.RenderNotFound(c)
+			return
+		}
+		router.RenderInternalServer(c)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"boards": board})
 }
 
 func PostBoardsHandler(c *gin.Context) {

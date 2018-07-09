@@ -2,6 +2,7 @@ package boards
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/pinem/server/db"
 	"github.com/pinem/server/errors"
 	"github.com/pinem/server/models"
@@ -18,17 +19,11 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.Board, error) {
 		return nil, err
 	}
 
-	user := auth.GetUserFromContext(c)
-	board := models.Board{
-		Name:   f.Name,
-		Desc:   f.Desc,
-		UserID: user.ID,
-		Public: f.Public,
-	}
-	if err := db.ORM.Create(&board).Error; err != nil {
+	board, err := create(&f, c)
+	if err != nil {
 		return nil, errors.ErrInternalServer
 	}
-	return &board, nil
+	return board, nil
 }
 
 func Update(c *gin.Context, msg *messages.Messages) (*models.Board, error) {
@@ -63,4 +58,34 @@ func Delete(c *gin.Context) error {
 		return err
 	}
 	return nil
+}
+
+func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) {
+	user := auth.GetUserFromContext(c)
+	board := models.Board{
+		Name:   f.Name,
+		Desc:   f.Desc,
+		UserID: user.ID,
+		Public: f.Public,
+	}
+
+	err := db.Transaction(db.ORM, func(tx *gorm.DB) error {
+		if err := tx.Create(&board).Error; err != nil {
+			return errors.ErrInternalServer
+		}
+		boardUser := models.BoardUser{
+			UserID:  user.ID,
+			BoardID: board.ID,
+			Role:    models.BoardOwner,
+		}
+		if err := tx.Create(&boardUser).Error; err != nil {
+			return errors.ErrInternalServer
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return &board, nil
 }

@@ -10,8 +10,33 @@ import (
 
 func RenderForbidden(c *gin.Context) {
 	t := locale.Get(c)
+	key := errors.ErrForbidden.Error()
 	c.JSON(http.StatusForbidden, gin.H{
-		"error": t.T(errors.ErrForbidden.Error()),
+		"code":   key,
+		"error":  t.T(key),
+		"status": http.StatusForbidden,
+	})
+	c.Abort()
+}
+
+func RenderNotFound(c *gin.Context) {
+	t := locale.Get(c)
+	key := errors.ErrNotFound.Error()
+	c.JSON(http.StatusNotFound, gin.H{
+		"code":   key,
+		"error":  t.T(key),
+		"status": http.StatusNotFound,
+	})
+	c.Abort()
+}
+
+func RenderInternalServer(c *gin.Context) {
+	t := locale.Get(c)
+	key := errors.ErrInternalServer.Error()
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"code":   key,
+		"error":  t.T(key),
+		"status": http.StatusInternalServerError,
 	})
 	c.Abort()
 }

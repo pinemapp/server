@@ -10,6 +10,8 @@ import (
 	"github.com/pinem/server/models"
 )
 
+const userKey = "pinem.current_user"
+
 var bearerRegex = regexp.MustCompile(`^Bearer (.*)$`)
 
 func Verify(c *gin.Context) (*models.Claims, error) {
@@ -40,4 +42,15 @@ func Verify(c *gin.Context) (*models.Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func SetUserInContext(user *models.User, c *gin.Context) {
+	c.Set(userKey, user)
+}
+
+func GetUserFromContext(c *gin.Context) *models.User {
+	if u, ok := c.Get(userKey); ok {
+		return u.(*models.User)
+	}
+	return nil
 }

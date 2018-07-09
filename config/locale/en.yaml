@@ -17,3 +17,5 @@
   translation: "invalid credentials"
 - id: errors_forbidden
   translation: "forbidden"
+- id: errors_not_found
+  translation: "not found"

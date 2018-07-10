@@ -1,6 +1,8 @@
 package messages
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/pinem/server/utils/locale"
 )
@@ -33,6 +35,10 @@ func (msg *Messages) AddError(key, message string) {
 
 func (msg *Messages) AddErrorT(key, tkey string) {
 	msg.AddError(key, msg.t.T(tkey))
+}
+
+func (msg *Messages) AddErrorTf(key, tkey string, args ...interface{}) {
+	msg.AddError(key, fmt.Sprintf(msg.t.T(tkey), args...))
 }
 
 func (msg *Messages) ErrorT(key string, err error) {

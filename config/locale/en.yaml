@@ -19,3 +19,10 @@
   translation: "forbidden"
 - id: errors_not_found
   translation: "not found"
+- id: errors_oneof
+  translation: "must be one of '%s'"
+
+- id: errors_user_not_exist
+  translation: "user does not exist"
+- id: errors_member_already_in_board
+  translation: "member already in board"

@@ -18,9 +18,9 @@ func init() {
 
 	br.GET("/", GetBoardsHandler)
 	br.POST("/", PostBoardsHandler)
-	br.GET("/:id", GetBoardHandler)
-	br.PATCH("/:id", PatchBoardHandler)
-	br.DELETE("/:id", DeleteBoardHandler)
+	br.GET("/:board_id", GetBoardHandler)
+	br.PATCH("/:board_id", PatchBoardHandler)
+	br.DELETE("/:board_id", DeleteBoardHandler)
 }
 
 func GetBoardsHandler(c *gin.Context) {

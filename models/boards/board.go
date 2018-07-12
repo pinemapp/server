@@ -65,7 +65,6 @@ func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) 
 	board := models.Board{
 		Name:   f.Name,
 		Desc:   f.Desc,
-		UserID: user.ID,
 		Public: f.Public,
 	}
 

@@ -28,8 +28,9 @@ func GetOneForUser(c *gin.Context) (*models.Board, error) {
 
 func Scope(c *gin.Context) *gorm.DB {
 	user := auth.GetUserFromContext(c)
-	return db.ORM.Select("DISTINCT boards.*").Joins("LEFT JOIN board_users ON boards.id = board_users.board_id").
-		Where("boards.user_id = ? OR board_users.user_id = ?", user.ID, user.ID).Order("created_at DESC")
+	return db.ORM.Joins("JOIN board_users ON boards.id = board_users.board_id").
+		Where("board_users.user_id = ? AND board_users.deleted_at IS NULL", user.ID).
+		Order("boards.created_at DESC")
 }
 
 func getOne(c *gin.Context) *gorm.DB {

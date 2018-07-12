@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
-
 	"github.com/casbin/casbin"
 	"github.com/gin-gonic/gin"
 	"github.com/pinem/server/controllers/router"
@@ -56,7 +54,6 @@ func Authorizer(e *casbin.Enforcer) func(*gin.Context) {
 		err = db.ORM.Joins("JOIN boards ON boards.id = board_users.board_id").
 			Where("boards.id = ? AND board_users.user_id = ?", boardID, user.ID).First(&member).Error
 		if err != nil {
-			fmt.Println(err)
 			router.RenderForbidden(c)
 			return
 		}

@@ -74,7 +74,7 @@ func Delete(c *gin.Context) error {
 
 func isMember(userID uint, c *gin.Context) (bool, error) {
 	var count int
-	if err := Scope(c).Table("board_users").Where("board_users.user_id = ?", userID).Count(&count).Error; err != nil {
+	if err := Scope(c).Model(&models.BoardUser{}).Where("board_users.user_id = ?", userID).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil

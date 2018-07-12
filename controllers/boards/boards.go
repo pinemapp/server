@@ -13,14 +13,16 @@ import (
 
 func init() {
 	r := router.Get()
-	br := r.Group("/api/boards")
-	br.Use(middlewares.AuthMiddleware)
+	middlewares.Apply(r)
 
-	br.GET("/", GetBoardsHandler)
-	br.POST("/", PostBoardsHandler)
-	br.GET("/:board_id", GetBoardHandler)
-	br.PATCH("/:board_id", PatchBoardHandler)
-	br.DELETE("/:board_id", DeleteBoardHandler)
+	br := r.Group("/api/boards")
+	{
+		br.GET("", GetBoardsHandler)
+		br.POST("", PostBoardsHandler)
+		br.GET("/:board_id", GetBoardHandler)
+		br.PATCH("/:board_id", PatchBoardHandler)
+		br.DELETE("/:board_id", DeleteBoardHandler)
+	}
 }
 
 func GetBoardsHandler(c *gin.Context) {

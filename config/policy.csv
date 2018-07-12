@@ -1,0 +1,16 @@
+p, admin, /*, *
+
+p, anonymous, /api/users, POST
+
+p, anonymous, /token, POST
+p, user, /verify_token, GET
+p, user, /api/boards, POST
+
+p, owner, /api/boards/*, *
+p, owner, /api/boards/*/members/*, *
+
+p, member, /api/boards/*, GET
+p, member, /api/boards/*/members/*, GET
+
+p, visitor, /api/boards/*, GET
+p, visitor, /api/boards/*/members/*, GET

@@ -28,6 +28,5 @@ func GetOneInBoard(c *gin.Context) (*models.BoardUser, error) {
 
 func Scope(c *gin.Context) *gorm.DB {
 	boardID := utils.GetIntParam("board_id", c)
-	// return boards.Scope(c).Where("boards.id = ?", boardID)
 	return db.ORM.Joins("JOIN boards ON boards.id = board_users.board_id").Where("board_id = ?", boardID)
 }

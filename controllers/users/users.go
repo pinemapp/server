@@ -1,9 +1,13 @@
 package usercontroller
 
-import "github.com/pinem/server/controllers/router"
+import (
+	"github.com/pinem/server/controllers/middlewares"
+	"github.com/pinem/server/controllers/router"
+)
 
 func init() {
 	r := router.Get()
-	ur := r.Group("/api/users")
-	ur.POST("/", PostUsersHandler)
+	middlewares.Apply(r)
+
+	r.POST("/api/users", PostUsersHandler)
 }

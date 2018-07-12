@@ -4,25 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pinem/server/controllers/middlewares"
 	"github.com/pinem/server/controllers/router"
 	"github.com/pinem/server/errors"
 	"github.com/pinem/server/models/members"
 	"github.com/pinem/server/utils/messages"
 )
-
-func init() {
-	r := router.Get()
-	middlewares.Apply(r)
-
-	mr := r.Group("/api/boards/:board_id/members")
-	{
-		mr.POST("", PostMembersHandler)
-		mr.PUT("/:member_id", PatchMemberHandler)
-		mr.PATCH("/:member_id", PatchMemberHandler)
-		mr.DELETE("/:member_id", DeleteMemberHandler)
-	}
-}
 
 func PostMembersHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)

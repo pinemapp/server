@@ -7,7 +7,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/pinem/server/config"
-	"github.com/pinem/server/controllers/middlewares"
 	"github.com/pinem/server/controllers/router"
 	"github.com/pinem/server/models"
 	"github.com/pinem/server/models/users"
@@ -18,14 +17,6 @@ import (
 type credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-func init() {
-	r := router.Get()
-	middlewares.Apply(r)
-
-	r.POST("/token", PostTokenHandler)
-	r.GET("/verify_token", GetVerifyTokenHandler)
 }
 
 func PostTokenHandler(c *gin.Context) {

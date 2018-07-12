@@ -19,13 +19,6 @@ type credentials struct {
 	Password string `json:"password"`
 }
 
-func init() {
-	r := router.Get()
-
-	r.POST("/token", PostTokenHandler)
-	r.GET("/verify_token", GetVerifyTokenHandler)
-}
-
 func PostTokenHandler(c *gin.Context) {
 	var cred credentials
 	c.Bind(&cred)

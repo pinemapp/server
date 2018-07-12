@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pinem/server/utils/messages"
-	"gopkg.in/go-playground/validator.v9"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 var validate *validator.Validate
@@ -18,7 +18,13 @@ func Validate(f interface{}, msg *messages.Messages) error {
 	err := validate.Struct(f)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			msg.AddErrorT(err.Field(), fmt.Sprintf("errors_%s", err.Tag()))
+			if err.Tag() == "unique" {
+				msg.AddErrorT(err.Field(), fmt.Sprintf("errors_%s", err.Tag()))
+			} else if err.Param() != "" {
+				msg.AddErrorTf(err.Field(), fmt.Sprintf("errors_%s", err.Tag()), err.Param())
+			} else {
+				msg.AddErrorT(err.Field(), fmt.Sprintf("errors_%s", err.Tag()))
+			}
 		}
 		return err
 	}

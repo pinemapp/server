@@ -4,23 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pinem/server/controllers/middlewares"
 	"github.com/pinem/server/controllers/router"
 	"github.com/pinem/server/errors"
 	"github.com/pinem/server/models/boards"
 	"github.com/pinem/server/utils/messages"
 )
-
-func init() {
-	r := router.Get()
-	br := r.Group("/api/boards")
-	br.Use(middlewares.AuthMiddleware)
-
-	br.GET("/", GetBoardsHandler)
-	br.POST("/", PostBoardsHandler)
-	br.PATCH("/:id", PatchBoardHandler)
-	br.DELETE("/:id", DeleteBoardHandler)
-}
 
 func GetBoardsHandler(c *gin.Context) {
 	boards, err := boards.GetAllForUser(c)
@@ -34,6 +22,20 @@ func GetBoardsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"boards": boards})
+}
+
+func GetBoardHandler(c *gin.Context) {
+	board, err := boards.GetOneForUser(c)
+	if err != nil {
+		if err == errors.ErrNotFound {
+			router.RenderNotFound(c)
+			return
+		}
+		router.RenderInternalServer(c)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"boards": board})
 }
 
 func PostBoardsHandler(c *gin.Context) {

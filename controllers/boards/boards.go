@@ -20,6 +20,7 @@ func init() {
 		br.GET("", GetBoardsHandler)
 		br.POST("", PostBoardsHandler)
 		br.GET("/:board_id", GetBoardHandler)
+		br.PUT("/:board_id", PatchBoardHandler)
 		br.PATCH("/:board_id", PatchBoardHandler)
 		br.DELETE("/:board_id", DeleteBoardHandler)
 	}

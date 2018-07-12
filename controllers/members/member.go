@@ -18,6 +18,7 @@ func init() {
 	mr := r.Group("/api/boards/:board_id/members")
 	{
 		mr.POST("", PostMembersHandler)
+		mr.PUT("/:member_id", PatchMemberHandler)
 		mr.PATCH("/:member_id", PatchMemberHandler)
 		mr.DELETE("/:member_id", DeleteMemberHandler)
 	}

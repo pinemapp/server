@@ -11,7 +11,7 @@ import (
 )
 
 func GetBoardsHandler(c *gin.Context) {
-	boards, err := boards.GetAllForUser(c)
+	bs, err := boards.GetAllForUser(c)
 	if err != nil {
 		msg := messages.GetMessages(c)
 		msg.ErrorT("message", err)
@@ -21,7 +21,7 @@ func GetBoardsHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"boards": boards})
+	c.JSON(http.StatusOK, gin.H{"boards": boards.GetSimpleBoards(bs)})
 }
 
 func GetBoardHandler(c *gin.Context) {

@@ -10,5 +10,7 @@ func migrate(db *gorm.DB) {
 		&models.User{},
 		&models.Board{},
 		&models.BoardUser{},
+		&models.List{},
+		&models.Task{},
 	)
 }

@@ -12,7 +12,7 @@ import (
 
 func GetAllForUser(c *gin.Context) ([]models.Board, error) {
 	var boards []models.Board
-	if err := Scope(c).Preload("Members").Find(&boards).Error; err != nil {
+	if err := Scope(c).Find(&boards).Error; err != nil {
 		return nil, errors.ErrInternalServer
 	}
 	return boards, nil
@@ -20,7 +20,9 @@ func GetAllForUser(c *gin.Context) ([]models.Board, error) {
 
 func GetOneForUser(c *gin.Context) (*models.Board, error) {
 	var board models.Board
-	if err := getOne(c).Preload("Members").First(&board).Error; err != nil {
+	if err := getOne(c).Preload("Members").Preload("Lists", func(db *gorm.DB) *gorm.DB {
+		return db.Order("lists.order ASC")
+	}).First(&board).Error; err != nil {
 		return nil, errors.ErrNotFound
 	}
 	return &board, nil

@@ -21,7 +21,9 @@ func GetAllForUser(c *gin.Context) ([]models.Board, error) {
 func GetOneForUser(c *gin.Context) (*models.Board, error) {
 	var board models.Board
 	if err := getOne(c).Preload("Members").Preload("Lists", func(db *gorm.DB) *gorm.DB {
-		return db.Order("lists.order ASC")
+		return db.Preload("Tasks", func(db1 *gorm.DB) *gorm.DB {
+			return db1.Order("tasks.order ASC")
+		}).Order("lists.order ASC")
 	}).First(&board).Error; err != nil {
 		return nil, errors.ErrNotFound
 	}

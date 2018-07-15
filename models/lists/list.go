@@ -20,7 +20,7 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 	}
 
 	var lastList models.List
-	Scope(c).Order("lists.created_at DESC").First(&lastList)
+	Scope(c).Order("lists.order DESC").First(&lastList)
 
 	color := f.Color
 	boardID := utils.GetIntParam("board_id", c)
@@ -53,7 +53,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 	}
 
 	var lastList models.List
-	Scope(c).Order("lists.created_at DESC").First(&lastList)
+	Scope(c).Order("lists.order DESC").First(&lastList)
 	if f.Order > lastList.Order {
 		msg.ErrorT("order", errors.ErrOrderOutOfRange)
 		return nil, errors.ErrOrderOutOfRange
@@ -78,10 +78,10 @@ func Delete(c *gin.Context) error {
 			return errors.ErrInternalServer
 		}
 
-		err = tx.Model(&models.List{}).Where("board_id = ? AND lists.order > ?", list.BoardID, list.Order).
-			UpdateColumn("order", gorm.Expr("lists.order - ?", 1)).Error
+		// TODO: find a way to get last order
+		err = reorder(tx, list.BoardID, list.Order, 100000, 1)
 		if err != nil {
-			return errors.ErrInternalServer
+			return err
 		}
 
 		return nil
@@ -112,16 +112,15 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 		}
 
 		if neededUpdate {
-			inc := 1
+			coe := -1
 			if oldOrder < newOrder {
-				inc = -1
+				coe = 1
 			}
 			boardID := utils.GetIntParam("board_id", c)
-			min, max := getOrderRange(oldOrder, newOrder)
-			err := tx.Model(models.List{}).Where("board_id = ? AND lists.order > ? AND lists.order < ?", boardID, min, max).
-				UpdateColumn("order", gorm.Expr("lists.order + ?", inc)).Error
+			min, max := utils.GetOrderRange(oldOrder, newOrder)
+			err := reorder(tx, boardID, min, max, coe)
 			if err != nil {
-				return errors.ErrInternalServer
+				return err
 			}
 		}
 
@@ -135,13 +134,12 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 	return err
 }
 
-func getOrderRange(newOrder, oldOrder int) (min, max int) {
-	if oldOrder < newOrder {
-		min = oldOrder - 1
-		max = newOrder
-	} else {
-		min = newOrder - 1
-		max = oldOrder + 1
+func reorder(tx *gorm.DB, boardID uint, min, max, coe int) error {
+	sql := "board_id = ? AND lists.order > ? AND lists.order < ?"
+	err := tx.Model(models.List{}).Where(sql, boardID, min, max).
+		UpdateColumn("order", gorm.Expr("lists.order - ?", coe)).Error
+	if err != nil {
+		return errors.ErrInternalServer
 	}
-	return
+	return nil
 }

@@ -10,8 +10,10 @@ p, user, /api/boards, POST
 p, owner, /api/boards/*, *
 p, owner, /api/boards/*/members/*, *
 p, owner, /api/boards/*/lists/*, *
+p, owner, /api/boards/*/tasks/*, *
 
 p, member, /api/boards/*, GET
 p, member, /api/boards/*/lists, *
+p, member, /api/boards/*/tasks, *
 
 p, visitor, /api/boards/*, GET

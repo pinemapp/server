@@ -14,3 +14,14 @@ func GetIntParam(key string, c *gin.Context) uint {
 	}
 	return uint(id)
 }
+
+func GetOrderRange(newOrder, oldOrder int) (min, max int) {
+	if oldOrder < newOrder {
+		min = oldOrder - 1
+		max = newOrder
+	} else {
+		min = newOrder - 1
+		max = oldOrder + 1
+	}
+	return
+}

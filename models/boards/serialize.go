@@ -1,9 +1,11 @@
 package boards
 
-import "github.com/pinem/server/models"
+import (
+	"github.com/pinem/server/models"
+)
 
 func GetSimpleBoards(boards []models.Board) []models.SimpleBoard {
-	var simpleBoards []models.SimpleBoard
+	simpleBoards := []models.SimpleBoard{}
 	for _, board := range boards {
 		simpleBoards = append(simpleBoards, GetSimpleBoard(board))
 	}

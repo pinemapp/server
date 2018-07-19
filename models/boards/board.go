@@ -32,16 +32,13 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.Board, error) {
 		return nil, err
 	}
 
-	var f boardvalidator.BoardForm
+	var f boardvalidator.UpdateBoardForm
 	c.Bind(&f)
 	if err := validators.Validate(&f, msg); err != nil {
 		return nil, err
 	}
 
-	board.Desc = f.Desc
-	board.Name = f.Name
-	board.Public = f.Public
-
+	validators.Bind(board, &f)
 	if err := db.ORM.Save(board).Error; err != nil {
 		return nil, errors.ErrInternalServer
 	}
@@ -62,11 +59,8 @@ func Delete(c *gin.Context) error {
 
 func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) {
 	user := auth.GetUserFromContext(c)
-	board := models.Board{
-		Name:   f.Name,
-		Desc:   f.Desc,
-		Public: f.Public,
-	}
+	var board models.Board
+	validators.Bind(&board, f)
 
 	err := db.Transaction(db.ORM, func(tx *gorm.DB) error {
 		if err := tx.Create(&board).Error; err != nil {

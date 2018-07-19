@@ -6,7 +6,7 @@ type Board struct {
 	Lists   []List      `json:"lists"`
 	Members []BoardUser `json:"members"`
 	Name    string      `json:"name" gorm:"type:varchar(255);not null"`
-	Desc    string      `json:"desc" gorm:"type:text"`
+	Desc    *string     `json:"desc" gorm:"type:text"`
 	Public  bool        `json:"public" gorm:"type:boolean default false"`
 }
 

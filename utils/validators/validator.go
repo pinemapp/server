@@ -45,7 +45,14 @@ func Bind(model interface{}, f interface{}) {
 				formField := formElem.Field(i)
 				if formField.IsValid() {
 					if isDirty(modelField, formField) {
-						modelField.Set(formField)
+						mKind, fKind := modelField.Kind(), formField.Kind()
+						if mKind == reflect.Ptr && fKind != reflect.Ptr {
+							modelField.Set(formField.Addr())
+						} else if mKind == fKind {
+							modelField.Set(formField)
+						} else if !formField.IsNil() {
+							modelField.Set(formField.Elem())
+						}
 					}
 				}
 			}
@@ -54,25 +61,41 @@ func Bind(model interface{}, f interface{}) {
 }
 
 func isDirty(f, ff reflect.Value) bool {
-	switch f.Kind() {
+	fKind, ffKind, fff := f.Kind(), ff.Kind(), ff
+	if fKind != ffKind {
+		if fKind != reflect.Ptr && fKind != reflect.Interface && fKind != reflect.Struct {
+			if ff.IsNil() {
+				return false
+			}
+			fff = ff.Elem()
+		}
+	}
+
+	switch fKind {
 	case reflect.String:
-		return f.String() != ff.String()
+		return f.String() != fff.String()
 	case reflect.Bool:
-		return f.Bool() != ff.Bool()
+		return f.Bool() != fff.Bool()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return f.Int() != ff.Int()
+		return f.Int() != fff.Int()
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return f.Uint() != ff.Uint()
+		return f.Uint() != fff.Uint()
 	case reflect.Float32, reflect.Float64:
-		return f.Float() != f.Float()
+		return f.Float() != fff.Float()
 	case reflect.Interface, reflect.Ptr:
-		if ff.IsNil() {
-			return false
+		if ffKind == reflect.Ptr || ffKind == reflect.Interface {
+			if ff.IsNil() {
+				return false
+			}
+			if f.IsNil() {
+				return !ff.IsNil()
+			}
+			return isDirty(f.Elem(), ff.Elem())
 		}
-		if f.IsNil() && !ff.IsNil() {
-			return true
+		if f.IsNil() {
+			return ff.Interface() != nil
 		}
-		return isDirty(f.Elem(), ff.Elem())
+		return isDirty(f.Elem(), ff)
 	case reflect.Struct:
 		if t, ok := f.Interface().(time.Time); ok {
 			tt := ff.Interface().(time.Time)

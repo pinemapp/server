@@ -56,6 +56,10 @@ func (msg *Messages) GetError(key string) []string {
 	return nil
 }
 
+func (msg *Messages) HasErrors() bool {
+	return len(msg.Errors) > 0
+}
+
 func (msg *Messages) setInContext() {
 	msg.c.Set(messagesKey, msg)
 }

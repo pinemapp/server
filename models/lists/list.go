@@ -22,17 +22,14 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 	var lastList models.List
 	Scope(c).Order("lists.order DESC").First(&lastList)
 
-	color := f.Color
-	boardID := utils.GetIntParam("board_id", c)
-	if color == "" {
-		color = models.DefaultListColor
+	var list models.List
+	validators.Bind(&list, &f)
+	if list.Color == nil {
+		list.Color = &models.DefaultListColor
 	}
-	list := models.List{
-		Name:    f.Name,
-		Color:   color,
-		BoardID: boardID,
-		Order:   lastList.Order + 1,
-	}
+	list.Order = lastList.Order + 1
+	list.BoardID = utils.GetIntParam("board_id", c)
+
 	err := db.ORM.Create(&list).Error
 	if err != nil {
 		return nil, errors.ErrRecordNotFound
@@ -54,9 +51,11 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 
 	var lastList models.List
 	Scope(c).Order("lists.order DESC").First(&lastList)
-	if f.Order > lastList.Order {
-		msg.ErrorT("order", errors.ErrOrderOutOfRange)
-		return nil, errors.ErrOrderOutOfRange
+	if f.Order != nil {
+		if *f.Order > lastList.Order {
+			msg.ErrorT("order", errors.ErrOrderOutOfRange)
+			return nil, errors.ErrOrderOutOfRange
+		}
 	}
 
 	err = update(&f, list, c)
@@ -95,42 +94,27 @@ func Delete(c *gin.Context) error {
 
 func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) error {
 	err := db.Transaction(db.ORM, func(tx *gorm.DB) error {
-		neededUpdate := false
-		newOrder := f.Order
 		oldOrder := list.Order
-		list.Name = f.Name
+		validators.Bind(list, f)
 
-		newList := models.List{
-			Name:  f.Name,
-			Color: f.Color,
-		}
-		if newOrder != 0 {
-			newList.Order = newOrder
-		}
-		if newOrder != 0 && oldOrder != newOrder {
-			neededUpdate = true
-		}
-
-		if neededUpdate {
+		if list.Order != oldOrder {
 			coe := -1
-			if oldOrder < newOrder {
+			if list.Order > oldOrder {
 				coe = 1
 			}
 			boardID := utils.GetIntParam("board_id", c)
-			min, max := utils.GetOrderRange(oldOrder, newOrder)
+			min, max := utils.GetOrderRange(oldOrder, list.Order)
 			err := reorder(tx, boardID, min, max, coe)
 			if err != nil {
 				return err
 			}
 		}
 
-		err := tx.Model(list).Updates(newList).Error
-		if err != nil {
-			return errors.ErrRecordNotFound
+		if err := tx.Save(list).Error; err != nil {
+			return errors.GetDBError(err)
 		}
 		return nil
 	})
-
 	return err
 }
 

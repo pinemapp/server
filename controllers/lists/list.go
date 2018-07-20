@@ -32,7 +32,7 @@ func PostListsHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	list, err := lists.Create(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -49,7 +49,7 @@ func PatchListHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	list, err := lists.Update(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}

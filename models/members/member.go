@@ -21,7 +21,7 @@ func Add(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
 
 	ok, err := isMember(f.UserID, c)
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	} else if ok {
 		return nil, errors.ErrMemberAlreadyInBoard
 	}

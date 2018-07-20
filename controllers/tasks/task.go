@@ -32,7 +32,7 @@ func PostTasksHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	task, err := tasks.Create(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -49,7 +49,7 @@ func PatchTaskHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	task, err := tasks.Update(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}

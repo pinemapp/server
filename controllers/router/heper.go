@@ -21,7 +21,7 @@ func RenderForbidden(c *gin.Context) {
 
 func RenderNotFound(c *gin.Context) {
 	t := locale.Get(c)
-	key := errors.ErrNotFound.Error()
+	key := errors.ErrRecordNotFound.Error()
 	c.JSON(http.StatusNotFound, gin.H{
 		"code":   key,
 		"error":  t.T(key),

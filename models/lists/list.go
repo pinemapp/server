@@ -35,7 +35,7 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 	}
 	err := db.ORM.Create(&list).Error
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 	return &list, nil
 }
@@ -49,7 +49,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 
 	list, err := GetOneInBoard(c)
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 
 	var lastList models.List
@@ -69,7 +69,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 func Delete(c *gin.Context) error {
 	list, err := GetOneInBoard(c)
 	if err != nil {
-		return errors.ErrNotFound
+		return errors.ErrRecordNotFound
 	}
 
 	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
@@ -126,7 +126,7 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 
 		err := tx.Model(list).Updates(newList).Error
 		if err != nil {
-			return errors.ErrNotFound
+			return errors.ErrRecordNotFound
 		}
 		return nil
 	})

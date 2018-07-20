@@ -21,7 +21,7 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 
 	boardID := utils.GetIntParam("board_id", c)
 	if !isListExist(f.ListID, boardID) {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 
 	lastTask := getLastTask(f.ListID, c)
@@ -35,7 +35,7 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 		Order:   lastTask.Order + 1,
 	}
 	if err := db.ORM.Create(&task).Error; err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 
 	return &task, nil
@@ -50,12 +50,12 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 
 	task, err := GetOneInBoard(c)
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 
 	isMoveToNewList := f.ListID != 0 && task.ListID != f.ListID
 	if isMoveToNewList && !isListExist(f.ListID, task.BoardID) {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 
 	if isMoveToNewList && f.Order == 0 {
@@ -85,7 +85,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 func Delete(c *gin.Context) error {
 	task, err := GetOneInBoard(c)
 	if err != nil {
-		return errors.ErrNotFound
+		return errors.ErrRecordNotFound
 	}
 
 	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
@@ -169,7 +169,7 @@ func update(f *taskvalidator.UpdateTaskForm, task *models.Task, c *gin.Context, 
 
 		err := tx.Model(task).Updates(newTask).Error
 		if err != nil {
-			return errors.ErrNotFound
+			return errors.ErrRecordNotFound
 		}
 		return nil
 	})

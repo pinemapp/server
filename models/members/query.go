@@ -21,7 +21,7 @@ func GetOneInBoard(c *gin.Context) (*models.BoardUser, error) {
 	var member models.BoardUser
 	memberID := utils.GetIntParam("member_id", c)
 	if err := Scope(c).Where("board_users.id = ?", memberID).First(&member).Error; err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 	return &member, nil
 }

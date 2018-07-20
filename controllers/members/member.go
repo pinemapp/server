@@ -14,7 +14,7 @@ func PostMembersHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	member, err := members.Add(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -34,7 +34,7 @@ func PatchMemberHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	member, err := members.Update(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -49,7 +49,7 @@ func PatchMemberHandler(c *gin.Context) {
 
 func DeleteMemberHandler(c *gin.Context) {
 	if err := members.Delete(c); err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}

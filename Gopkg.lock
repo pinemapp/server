@@ -129,6 +129,12 @@
   version = "v0.0.3"
 
 [[projects]]
+  name = "github.com/mgutz/str"
+  packages = ["."]
+  revision = "968bf66e3da857419e4f6e71b2d5c9ae95682dc4"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/nicksnyder/go-i18n"
   packages = [
     "i18n",
@@ -193,6 +199,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f0885851df124afc8de6ec17b7f02074fedf80c6d53625294313c336d663194d"
+  inputs-digest = "227cf8035a91ddddd4a472c45a72c76653402aad3728ae5e738c3c17fc046cea"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -2,8 +2,10 @@ package utils
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mgutz/str"
 )
 
 func GetIntParam(key string, c *gin.Context) uint {
@@ -24,4 +26,8 @@ func GetOrderRange(newOrder, oldOrder int) (min, max int) {
 		max = oldOrder + 1
 	}
 	return
+}
+
+func GenerateSlug(name string) string {
+	return strings.Trim(str.Dasherize(name), "-")
 }

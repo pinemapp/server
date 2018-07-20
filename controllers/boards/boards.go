@@ -27,7 +27,7 @@ func GetBoardsHandler(c *gin.Context) {
 func GetBoardHandler(c *gin.Context) {
 	board, err := boards.GetOneForUser(c)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -55,7 +55,7 @@ func PatchBoardHandler(c *gin.Context) {
 	msg := messages.GetMessages(c)
 	board, err := boards.Update(c, msg)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}
@@ -71,7 +71,7 @@ func PatchBoardHandler(c *gin.Context) {
 func DeleteBoardHandler(c *gin.Context) {
 	err := boards.Delete(c)
 	if err != nil {
-		if err == errors.ErrNotFound {
+		if err == errors.ErrRecordNotFound {
 			router.RenderNotFound(c)
 			return
 		}

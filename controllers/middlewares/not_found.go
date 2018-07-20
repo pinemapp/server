@@ -12,7 +12,7 @@ func NotFound() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Writer.Status() == 404 {
 			t := locale.Get(c)
-			key := errors.ErrNotFound.Error()
+			key := errors.ErrRecordNotFound.Error()
 			c.JSON(http.StatusNotFound, gin.H{
 				"code":   key,
 				"error":  t.T(key),

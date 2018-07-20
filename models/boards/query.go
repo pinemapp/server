@@ -25,7 +25,7 @@ func GetOneForUser(c *gin.Context) (*models.Board, error) {
 			return db1.Order("tasks.order ASC")
 		}).Order("lists.order ASC")
 	}).First(&board).Error; err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 	return &board, nil
 }

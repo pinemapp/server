@@ -14,7 +14,7 @@ func GetAllInBoard(c *gin.Context) ([]models.List, error) {
 	var lists []models.List
 	err := Scope(c).Find(&lists).Error
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 	return lists, nil
 }
@@ -24,7 +24,7 @@ func GetOneInBoard(c *gin.Context) (*models.List, error) {
 	listID := utils.GetIntParam("list_id", c)
 	err := Scope(c).Preload("Tasks").First(&list, listID).Error
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.ErrRecordNotFound
 	}
 	return &list, nil
 }

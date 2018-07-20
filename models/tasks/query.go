@@ -13,7 +13,7 @@ func GetAllInBoard(c *gin.Context) ([]models.Task, error) {
 	var tasks []models.Task
 	err := Scope(c).Find(&tasks).Error
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.GetDBError(err)
 	}
 	return tasks, nil
 }
@@ -23,7 +23,7 @@ func GetOneInBoard(c *gin.Context) (*models.Task, error) {
 	taskID := utils.GetIntParam("task_id", c)
 	err := Scope(c).Where("tasks.id = ?", taskID).First(&task).Error
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.GetDBError(err)
 	}
 	return &task, nil
 }

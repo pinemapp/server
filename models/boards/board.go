@@ -74,6 +74,7 @@ func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) 
 		if err := tx.Create(&boardUser).Error; err != nil {
 			return errors.ErrInternalServer
 		}
+		board.Members = append(board.Members, boardUser)
 		return nil
 	})
 

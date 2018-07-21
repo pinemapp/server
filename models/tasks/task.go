@@ -24,20 +24,15 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 		return nil, errors.ErrRecordNotFound
 	}
 
+	var task models.Task
 	lastTask := getLastTask(f.ListID, c)
-	task := models.Task{
-		BoardID: boardID,
-		ListID:  f.ListID,
-		Name:    f.Name,
-		Desc:    f.Desc,
-		StartAt: f.StartAt,
-		EndAt:   f.EndAt,
-		Order:   lastTask.Order + 1,
-	}
-	if err := db.ORM.Create(&task).Error; err != nil {
-		return nil, errors.ErrRecordNotFound
-	}
+	validators.Bind(&task, &f)
+	task.BoardID = boardID
+	task.Order = lastTask.Order + 1
 
+	if err := db.ORM.Create(&task).Error; err != nil {
+		return nil, errors.GetDBError(err)
+	}
 	return &task, nil
 }
 
@@ -53,28 +48,36 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.Task, error) {
 		return nil, errors.ErrRecordNotFound
 	}
 
-	isMoveToNewList := f.ListID != 0 && task.ListID != f.ListID
-	if isMoveToNewList && !isListExist(f.ListID, task.BoardID) {
+	var newTask models.Task
+	validators.Bind(&newTask, &f)
+
+	isMoveToNewList := newTask.ListID != 0 && task.ListID != newTask.ListID
+	if isMoveToNewList && !isListExist(newTask.ListID, task.BoardID) {
 		return nil, errors.ErrRecordNotFound
 	}
 
-	if isMoveToNewList && f.Order == 0 {
-		f.Order = 1
+	lastTask := getLastTask(newTask.ListID, c)
+	if isMoveToNewList && newTask.Order == 0 {
+		if lastTask.Order != 0 {
+			newTask.Order = lastTask.Order + 1
+		} else {
+			newTask.Order = 1
+		}
+		f.Order = &newTask.Order
 	}
 
-	lastTask := getLastTask(f.ListID, c)
 	if isMoveToNewList {
-		if lastTask.Order != 0 && f.Order > lastTask.Order {
+		if lastTask.Order != 0 && newTask.Order > lastTask.Order+1 {
 			return nil, errors.ErrOrderOutOfRange
 		}
-		if lastTask.Order == 0 && f.Order != 1 {
+		if lastTask.Order == 0 && newTask.Order != 1 {
 			return nil, errors.ErrOrderOutOfRange
 		}
-	} else if f.Order > lastTask.Order {
+	} else if newTask.Order > lastTask.Order {
 		return nil, errors.ErrOrderOutOfRange
 	}
 
-	err = update(&f, task, c, isMoveToNewList)
+	err = update(&f, &newTask, task, c, isMoveToNewList)
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +94,12 @@ func Delete(c *gin.Context) error {
 	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
 		err := tx.Delete(task).Error
 		if err != nil {
-			return errors.ErrInternalServer
+			return errors.GetDBError(err)
 		}
 
 		err = reorder(tx, task.BoardID, task.ListID, task.Order, 100000, 1)
 		if err != nil {
-			return errors.ErrInternalServer
+			return errors.GetDBError(err)
 		}
 
 		return nil
@@ -115,31 +118,15 @@ func getLastTask(listID uint, c *gin.Context) models.Task {
 	return lastTask
 }
 
-func update(f *taskvalidator.UpdateTaskForm, task *models.Task, c *gin.Context, isMoveToNewList bool) error {
+func update(f *taskvalidator.UpdateTaskForm, newTask, task *models.Task, c *gin.Context, isMoveToNewList bool) error {
 	err := db.Transaction(db.ORM, func(tx *gorm.DB) error {
-		listID := f.ListID
-		if listID == 0 {
-			listID = task.ListID
-		}
-
 		neededUpdate := false
-		newOrder := f.Order
+		newOrder := newTask.Order
 		oldOrder := task.Order
-
-		newListID := f.ListID
+		newListID := newTask.ListID
 		oldListID := task.ListID
+		validators.Bind(task, f)
 
-		newTask := models.Task{
-			Name:    f.Name,
-			ListID:  listID,
-			Desc:    f.Desc,
-			StartAt: f.StartAt,
-			EndAt:   f.EndAt,
-		}
-
-		if newOrder != 0 {
-			newTask.Order = newOrder
-		}
 		if (newOrder != 0 && oldOrder != newOrder) ||
 			(newListID != 0 && oldListID != newListID) {
 			neededUpdate = true
@@ -149,27 +136,29 @@ func update(f *taskvalidator.UpdateTaskForm, task *models.Task, c *gin.Context, 
 			boardID := utils.GetIntParam("board_id", c)
 			if isMoveToNewList {
 				// re-order task in old list
-				err := reorder(tx, boardID, task.ListID, task.Order, 100000, 1)
+				if err := reorder(tx, boardID, oldListID, oldOrder, 100000, 1); err != nil {
+					return err
+				}
+				// re-order task in current list
+				if err := reorder(tx, boardID, task.ListID, newOrder-1, 100000, -1); err != nil {
+					return err
+				}
+			} else {
+				// re-order task in current list
+				coe := -1
+				if oldOrder < newOrder {
+					coe = 1
+				}
+				min, max := utils.GetOrderRange(oldOrder, newOrder)
+				err := reorder(tx, boardID, task.ListID, min, max, coe)
 				if err != nil {
 					return err
 				}
 			}
-
-			// re-order task in current list
-			coe := -1
-			if oldOrder < newOrder {
-				coe = 1
-			}
-			min, max := utils.GetOrderRange(oldOrder, newOrder)
-			err := reorder(tx, boardID, newTask.ListID, min, max, coe)
-			if err != nil {
-				return err
-			}
 		}
 
-		err := tx.Model(task).Updates(newTask).Error
-		if err != nil {
-			return errors.ErrRecordNotFound
+		if err := tx.Save(task).Error; err != nil {
+			return errors.GetDBError(err)
 		}
 		return nil
 	})
@@ -191,7 +180,7 @@ func reorder(tx *gorm.DB, boardID, listID uint, min, max, coe int) error {
 	err := tx.Model(models.Task{}).Where(sql, boardID, listID, min, max).
 		UpdateColumn("order", gorm.Expr("tasks.order - ?", coe)).Error
 	if err != nil {
-		return errors.ErrInternalServer
+		return errors.GetDBError(err)
 	}
 	return nil
 }

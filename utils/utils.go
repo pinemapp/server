@@ -1,12 +1,23 @@
 package utils
 
 import (
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mgutz/str"
 )
+
+var (
+	num      = []rune("0123456789")
+	alphaNum = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+)
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func GetIntParam(key string, c *gin.Context) uint {
 	s := c.Param(key)
@@ -30,4 +41,20 @@ func GetOrderRange(newOrder, oldOrder int) (min, max int) {
 
 func GenerateSlug(name string) string {
 	return strings.Trim(str.Dasherize(name), "-")
+}
+
+func RandomString(n int) string {
+	return randomNFrom(n, alphaNum)
+}
+
+func RandomNumString(n int) string {
+	return randomNFrom(n, num)
+}
+
+func randomNFrom(n int, source []rune) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = source[rand.Intn(len(source))]
+	}
+	return string(b)
 }

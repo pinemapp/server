@@ -17,7 +17,7 @@ func Create(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, er
 	if err := validators.Validate(f, msg); err != nil {
 		return nil, err
 	}
-	team, err := Build(f, msg)
+	team, err := build(f, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -25,19 +25,6 @@ func Create(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, er
 		return nil, errors.ErrInternalServer
 	}
 	return team, nil
-}
-
-func CreateFromContext(c *gin.Context, msg *messages.Messages) (*models.Team, error) {
-	var f teamvalidator.TeamForm
-	c.Bind(&f)
-	return Create(&f, msg)
-}
-
-func UpdateFromContext(c *gin.Context, msg *messages.Messages) (*models.Team, error) {
-	var f teamvalidator.UpdateTeamForm
-	c.Bind(&f)
-	teamID := utils.GetIntParam("team_id", c)
-	return Update(teamID, &f, msg)
 }
 
 func Update(id uint, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) (*models.Team, error) {
@@ -49,29 +36,60 @@ func Update(id uint, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) (*
 	if err := validators.Validate(f, msg); err != nil {
 		return nil, err
 	}
-	if err := Assign(&team, f, msg); err != nil {
+	if err := assign(&team, f, msg); err != nil {
 		return nil, err
 	}
-	if err := db.ORM.Create(&team).Error; err != nil {
-		return nil, errors.ErrInternalServer
+	if err := db.ORM.Save(&team).Error; err != nil {
+		return nil, errors.GetDBError(err)
 	}
 	return &team, nil
 }
 
-func Build(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, error) {
+func Delete(id uint) error {
+	team, err := Find(id)
+	if err != nil {
+		return err
+	}
+	if err := db.ORM.Delete(team).Error; err != nil {
+		return errors.GetDBError(err)
+	}
+	return nil
+}
+
+func DeleteFromContext(c *gin.Context) error {
+	teamID := utils.GetIntParam("team_id", c)
+	return Delete(teamID)
+}
+
+func CreateFromContext(c *gin.Context) (*models.Team, error) {
+	var f teamvalidator.TeamForm
+	msg := messages.GetMessages(c)
+	c.Bind(&f)
+	return Create(&f, msg)
+}
+
+func UpdateFromContext(c *gin.Context) (*models.Team, error) {
+	var f teamvalidator.UpdateTeamForm
+	msg := messages.GetMessages(c)
+	c.Bind(&f)
+	teamID := utils.GetIntParam("team_id", c)
+	return Update(teamID, &f, msg)
+}
+
+func build(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, error) {
 	if err := validators.Validate(f, msg); err != nil {
 		return nil, err
 	}
 
 	var team models.Team
 	validators.Bind(&team, f)
-	if team.Slug == "" {
+	if f.Slug == nil {
 		team.Slug = generateSlug(team.Name)
 	}
 	return &team, nil
 }
 
-func Assign(team *models.Team, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) error {
+func assign(team *models.Team, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) error {
 	if err := validators.Validate(f, msg); err != nil {
 		return err
 	}
@@ -87,11 +105,9 @@ func Assign(team *models.Team, f *teamvalidator.UpdateTeamForm, msg *messages.Me
 }
 
 func generateSlug(name string) string {
-	count := 1
 	slug := utils.GenerateSlug(name)
 	for isSlugExist(slug) {
-		slug = fmt.Sprintf("%s%d", slug, count)
-		count += 1
+		slug = fmt.Sprintf("%s%d", slug, utils.RandomNumString(8))
 	}
 	return slug
 }

@@ -21,9 +21,9 @@ func Authorizer() gin.HandlerFunc {
 
 		path := c.Request.URL.Path
 		method := c.Request.Method
-		boardID := utils.GetIntParam("board_id", c)
+		projectID := utils.GetIntParam("project_id", c)
 
-		if boardID == 0 {
+		if projectID == 0 {
 			ok, err := e.EnforceSafe("user", path, method)
 			if err != nil || !ok {
 				router.RenderForbidden(c)
@@ -33,7 +33,7 @@ func Authorizer() gin.HandlerFunc {
 			return
 		}
 
-		member, err := getMember(user.ID, boardID)
+		member, err := getMember(user.ID, projectID)
 		if err != nil {
 			router.RenderForbidden(c)
 			return
@@ -89,10 +89,10 @@ func TeamAuthorizer() gin.HandlerFunc {
 	}
 }
 
-func getMember(userID, boardID uint) (*models.BoardUser, error) {
-	var member models.BoardUser
-	err := db.ORM.Joins("JOIN boards ON boards.id = board_users.board_id").
-		Where("boards.id = ? AND board_users.user_id = ?", boardID, userID).First(&member).Error
+func getMember(userID, projectID uint) (*models.ProjectUser, error) {
+	var member models.ProjectUser
+	err := db.ORM.Joins("JOIN projects ON projects.id = project_users.project_id").
+		Where("projects.id = ? AND project_users.user_id = ?", projectID, userID).First(&member).Error
 	if err != nil {
 		return nil, err
 	}

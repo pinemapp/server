@@ -11,7 +11,7 @@ import (
 	"github.com/pinem/server/utils/validators/members"
 )
 
-func Add(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
+func Add(c *gin.Context, msg *messages.Messages) (*models.ProjectUser, error) {
 	var f membervalidator.MemberForm
 	c.Bind(&f)
 
@@ -23,14 +23,14 @@ func Add(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
 	if err != nil {
 		return nil, errors.ErrRecordNotFound
 	} else if ok {
-		return nil, errors.ErrMemberAlreadyInBoard
+		return nil, errors.ErrMemberAlreadyInProject
 	}
 
-	boardID := utils.GetIntParam("board_id", c)
-	member := models.BoardUser{
-		UserID:  f.UserID,
-		BoardID: boardID,
-		Role:    f.Role,
+	projectID := utils.GetIntParam("project_id", c)
+	member := models.ProjectUser{
+		UserID:    f.UserID,
+		ProjectID: projectID,
+		Role:      f.Role,
 	}
 	if err := db.ORM.Create(&member).Error; err != nil {
 		return nil, errors.ErrUserNotExist
@@ -39,7 +39,7 @@ func Add(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
 	return &member, nil
 }
 
-func Update(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
+func Update(c *gin.Context, msg *messages.Messages) (*models.ProjectUser, error) {
 	var f membervalidator.UpdateMemberForm
 	c.Bind(&f)
 
@@ -47,34 +47,34 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.BoardUser, error) {
 		return nil, err
 	}
 
-	member, err := GetOneInBoard(c)
+	member, err := GetOneInProject(c)
 	if err != nil {
 		return nil, err
 	}
 
 	member.Role = f.Role
 	if err := db.ORM.Save(member).Error; err != nil {
-		return nil, errors.ErrInternalServer
+		return nil, errors.GetDBError(err)
 	}
 
 	return member, nil
 }
 
 func Delete(c *gin.Context) error {
-	member, err := GetOneInBoard(c)
+	member, err := GetOneInProject(c)
 	if err != nil {
 		return err
 	}
 
 	if err := db.ORM.Delete(member).Error; err != nil {
-		return errors.ErrInternalServer
+		return errors.GetDBError(err)
 	}
 	return nil
 }
 
 func isMember(userID uint, c *gin.Context) (bool, error) {
 	var count int
-	if err := Scope(c).Model(&models.BoardUser{}).Where("board_users.user_id = ?", userID).Count(&count).Error; err != nil {
+	if err := Scope(c).Model(&models.ProjectUser{}).Where("project_users.user_id = ?", userID).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil

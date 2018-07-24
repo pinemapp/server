@@ -10,14 +10,14 @@ import (
 )
 
 func GetTasksHandler(c *gin.Context) {
-	ts, err := tasks.GetAllInBoard(c)
+	ts, err := tasks.GetAllInProject(c)
 	router.RenderApiReponse(err, c, func() {
 		c.JSON(http.StatusOK, gin.H{"tasks": ts})
 	})
 }
 
 func GetTaskHandler(c *gin.Context) {
-	task, err := tasks.GetOneInBoard(c)
+	task, err := tasks.GetOneInProject(c)
 	router.RenderApiReponse(err, c, func() {
 		c.JSON(http.StatusOK, gin.H{"task": task})
 	})

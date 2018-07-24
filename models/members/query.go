@@ -9,24 +9,24 @@ import (
 	"github.com/pinem/server/utils"
 )
 
-func GetAllInBoard(c *gin.Context) ([]models.BoardUser, error) {
-	var members []models.BoardUser
+func GetAllInProject(c *gin.Context) ([]models.ProjectUser, error) {
+	var members []models.ProjectUser
 	if err := Scope(c).Find(&members).Error; err != nil {
-		return nil, errors.ErrInternalServer
+		return nil, errors.GetDBError(err)
 	}
 	return members, nil
 }
 
-func GetOneInBoard(c *gin.Context) (*models.BoardUser, error) {
-	var member models.BoardUser
+func GetOneInProject(c *gin.Context) (*models.ProjectUser, error) {
+	var member models.ProjectUser
 	memberID := utils.GetIntParam("member_id", c)
-	if err := Scope(c).Where("board_users.id = ?", memberID).First(&member).Error; err != nil {
+	if err := Scope(c).Where("project_users.id = ?", memberID).First(&member).Error; err != nil {
 		return nil, errors.ErrRecordNotFound
 	}
 	return &member, nil
 }
 
 func Scope(c *gin.Context) *gorm.DB {
-	boardID := utils.GetIntParam("board_id", c)
-	return db.ORM.Joins("JOIN boards ON boards.id = board_users.board_id").Where("board_id = ?", boardID)
+	projectID := utils.GetIntParam("project_id", c)
+	return db.ORM.Joins("JOIN projects ON projects.id = project_users.project_id").Where("project_id = ?", projectID)
 }

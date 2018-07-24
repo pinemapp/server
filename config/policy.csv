@@ -1,20 +1,20 @@
 p, admin, /*, *
 
-p, user, /api/boards, GET
-p, user, /api/boards, POST
+p, user, /api/projects, GET
+p, user, /api/projects, POST
 p, user, /api/teams, GET
 p, user, /api/teams, POST
 
-p, owner, /api/boards/*, *
-p, owner, /api/boards/*/members/*, *
-p, owner, /api/boards/*/lists/*, *
-p, owner, /api/boards/*/tasks/*, *
+p, owner, /api/projects/*, *
+p, owner, /api/projects/*/members/*, *
+p, owner, /api/projects/*/lists/*, *
+p, owner, /api/projects/*/tasks/*, *
 
-p, member, /api/boards/*, GET
-p, member, /api/boards/*/lists, *
-p, member, /api/boards/*/tasks, *
+p, member, /api/projects/*, GET
+p, member, /api/projects/*/lists, *
+p, member, /api/projects/*/tasks, *
 
-p, visitor, /api/boards/*, GET
+p, visitor, /api/projects/*, GET
 
 p, leader, /api/teams/*, *
 p, member, /api/teams/*, GET

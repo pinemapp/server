@@ -9,7 +9,7 @@ import (
 	"github.com/pinem/server/utils"
 )
 
-func GetAllInBoard(c *gin.Context) ([]models.Task, error) {
+func GetAllInProject(c *gin.Context) ([]models.Task, error) {
 	var tasks []models.Task
 	err := Scope(c).Find(&tasks).Error
 	if err != nil {
@@ -18,7 +18,7 @@ func GetAllInBoard(c *gin.Context) ([]models.Task, error) {
 	return tasks, nil
 }
 
-func GetOneInBoard(c *gin.Context) (*models.Task, error) {
+func GetOneInProject(c *gin.Context) (*models.Task, error) {
 	var task models.Task
 	taskID := utils.GetIntParam("task_id", c)
 	err := Scope(c).Where("tasks.id = ?", taskID).First(&task).Error
@@ -29,7 +29,7 @@ func GetOneInBoard(c *gin.Context) (*models.Task, error) {
 }
 
 func Scope(c *gin.Context) *gorm.DB {
-	boardID := utils.GetIntParam("board_id", c)
-	return db.ORM.Joins("JOIN boards ON boards.id = tasks.board_id").
-		Where("tasks.board_id = ?", boardID)
+	projectID := utils.GetIntParam("project_id", c)
+	return db.ORM.Joins("JOIN projects ON projects.id = tasks.project_id").
+		Where("tasks.project_id = ?", projectID)
 }

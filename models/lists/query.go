@@ -10,7 +10,7 @@ import (
 	"github.com/pinem/server/utils/auth"
 )
 
-func GetAllInBoard(c *gin.Context) ([]models.List, error) {
+func GetAllInProject(c *gin.Context) ([]models.List, error) {
 	var lists []models.List
 	err := Scope(c).Find(&lists).Error
 	if err != nil {
@@ -19,7 +19,7 @@ func GetAllInBoard(c *gin.Context) ([]models.List, error) {
 	return lists, nil
 }
 
-func GetOneInBoard(c *gin.Context) (*models.List, error) {
+func GetOneInProject(c *gin.Context) (*models.List, error) {
 	var list models.List
 	listID := utils.GetIntParam("list_id", c)
 	err := Scope(c).Preload("Tasks").First(&list, listID).Error
@@ -31,8 +31,8 @@ func GetOneInBoard(c *gin.Context) (*models.List, error) {
 
 func Scope(c *gin.Context) *gorm.DB {
 	user := auth.GetUserFromContext(c)
-	boardID := utils.GetIntParam("board_id", c)
-	return db.ORM.Joins("JOIN boards ON boards.id = lists.board_id").
-		Joins("JOIN board_users ON boards.id = board_users.board_id").
-		Where("boards.id = ? AND board_users.user_id = ?", boardID, user.ID)
+	projectID := utils.GetIntParam("project_id", c)
+	return db.ORM.Joins("JOIN projects ON projects.id = lists.project_id").
+		Joins("JOIN project_users ON projects.id = project_users.project_id").
+		Where("projects.id = ? AND project_users.user_id = ?", projectID, user.ID)
 }

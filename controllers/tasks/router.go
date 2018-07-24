@@ -9,7 +9,7 @@ func init() {
 	r := router.Get()
 	middlewares.Apply(r)
 
-	tr := r.Group("/api/boards/:board_id/tasks")
+	tr := r.Group("/api/projects/:project_id/tasks")
 	tr.Use(middlewares.Authorizer())
 	{
 		tr.GET("", GetTasksHandler)

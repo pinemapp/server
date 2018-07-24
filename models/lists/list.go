@@ -28,7 +28,7 @@ func Create(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 		list.Color = &models.DefaultListColor
 	}
 	list.Order = lastList.Order + 1
-	list.BoardID = utils.GetIntParam("board_id", c)
+	list.ProjectID = utils.GetIntParam("project_id", c)
 
 	err := db.ORM.Create(&list).Error
 	if err != nil {
@@ -44,7 +44,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 		return nil, err
 	}
 
-	list, err := GetOneInBoard(c)
+	list, err := GetOneInProject(c)
 	if err != nil {
 		return nil, errors.ErrRecordNotFound
 	}
@@ -66,7 +66,7 @@ func Update(c *gin.Context, msg *messages.Messages) (*models.List, error) {
 }
 
 func Delete(c *gin.Context) error {
-	list, err := GetOneInBoard(c)
+	list, err := GetOneInProject(c)
 	if err != nil {
 		return errors.ErrRecordNotFound
 	}
@@ -79,7 +79,7 @@ func Delete(c *gin.Context) error {
 			return err
 		}
 		// TODO: find a way to get last order
-		if err := reorder(tx, list.BoardID, list.Order, 100000, 1); err != nil {
+		if err := reorder(tx, list.ProjectID, list.Order, 100000, 1); err != nil {
 			return err
 		}
 		return nil
@@ -97,9 +97,9 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 			if list.Order > oldOrder {
 				coe = 1
 			}
-			boardID := utils.GetIntParam("board_id", c)
+			projectID := utils.GetIntParam("project_id", c)
 			min, max := utils.GetOrderRange(oldOrder, list.Order)
-			err := reorder(tx, boardID, min, max, coe)
+			err := reorder(tx, projectID, min, max, coe)
 			if err != nil {
 				return err
 			}
@@ -113,9 +113,9 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 	return errors.GetDBError(err)
 }
 
-func reorder(tx *gorm.DB, boardID uint, min, max, coe int) error {
-	sql := "board_id = ? AND lists.order > ? AND lists.order < ?"
-	err := tx.Model(models.List{}).Where(sql, boardID, min, max).
+func reorder(tx *gorm.DB, projectID uint, min, max, coe int) error {
+	sql := "project_id = ? AND lists.order > ? AND lists.order < ?"
+	err := tx.Model(models.List{}).Where(sql, projectID, min, max).
 		UpdateColumn("order", gorm.Expr("lists.order - ?", coe)).Error
 	if err != nil {
 		return err

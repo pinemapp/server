@@ -10,14 +10,14 @@ import (
 )
 
 func GetListsHandler(c *gin.Context) {
-	ls, err := lists.GetAllInBoard(c)
+	ls, err := lists.GetAllInProject(c)
 	router.RenderApiReponse(err, c, func() {
 		c.JSON(http.StatusOK, gin.H{"lists": lists.GetSimpleLists(ls)})
 	})
 }
 
 func GetListHandler(c *gin.Context) {
-	list, err := lists.GetOneInBoard(c)
+	list, err := lists.GetOneInProject(c)
 	router.RenderApiReponse(err, c, func() {
 		c.JSON(http.StatusOK, gin.H{"list": list})
 	})

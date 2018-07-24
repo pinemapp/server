@@ -9,7 +9,7 @@ func init() {
 	r := router.Get()
 	middlewares.Apply(r)
 
-	mr := r.Group("/api/boards/:board_id/members")
+	mr := r.Group("/api/projects/:project_id/members")
 	mr.Use(middlewares.Authorizer())
 	{
 		mr.POST("", PostMembersHandler)

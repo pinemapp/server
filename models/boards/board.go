@@ -51,10 +51,22 @@ func Delete(c *gin.Context) error {
 		return err
 	}
 
-	if err := db.ORM.Delete(&board).Error; err != nil {
-		return err
-	}
-	return nil
+	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
+		if err := tx.Delete(models.Task{}, "board_id = ?", board.ID).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(models.List{}, "board_id = ?", board.ID).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(models.BoardUser{}, "board_id = ?", board.ID).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(&board).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }
 
 func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) {

@@ -66,7 +66,7 @@ func Delete(c *gin.Context) error {
 		}
 		return nil
 	})
-	return err
+	return errors.GetDBError(err)
 }
 
 func create(f *boardvalidator.BoardForm, c *gin.Context) (*models.Board, error) {

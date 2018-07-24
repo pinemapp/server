@@ -72,24 +72,19 @@ func Delete(c *gin.Context) error {
 	}
 
 	err = db.Transaction(db.ORM, func(tx *gorm.DB) error {
-		err := tx.Delete(list).Error
-		if err != nil {
-			return errors.ErrInternalServer
-		}
-
-		// TODO: find a way to get last order
-		err = reorder(tx, list.BoardID, list.Order, 100000, 1)
-		if err != nil {
+		if err := tx.Delete(models.Task{}, "list_id = ?", list.ID).Error; err != nil {
 			return err
 		}
-
+		if err := tx.Delete(list).Error; err != nil {
+			return err
+		}
+		// TODO: find a way to get last order
+		if err := reorder(tx, list.BoardID, list.Order, 100000, 1); err != nil {
+			return err
+		}
 		return nil
 	})
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.GetDBError(err)
 }
 
 func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) error {
@@ -111,11 +106,11 @@ func update(f *listvalidator.UpdateListForm, list *models.List, c *gin.Context) 
 		}
 
 		if err := tx.Save(list).Error; err != nil {
-			return errors.GetDBError(err)
+			return err
 		}
 		return nil
 	})
-	return err
+	return errors.GetDBError(err)
 }
 
 func reorder(tx *gorm.DB, boardID uint, min, max, coe int) error {
@@ -123,7 +118,7 @@ func reorder(tx *gorm.DB, boardID uint, min, max, coe int) error {
 	err := tx.Model(models.List{}).Where(sql, boardID, min, max).
 		UpdateColumn("order", gorm.Expr("lists.order - ?", coe)).Error
 	if err != nil {
-		return errors.ErrInternalServer
+		return err
 	}
 	return nil
 }

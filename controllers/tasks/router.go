@@ -10,6 +10,7 @@ func init() {
 	middlewares.Apply(r)
 
 	tr := r.Group("/api/boards/:board_id/tasks")
+	tr.Use(middlewares.Authorizer())
 	{
 		tr.GET("", GetTasksHandler)
 		tr.POST("", PostTasksHandler)

@@ -9,7 +9,7 @@ import (
 )
 
 func GetTeamsHandler(c *gin.Context) {
-	teams, err := teams.FindAll()
+	teams, err := teams.FindAllFromContext(c)
 	router.RenderApiReponse(err, c, func() {
 		c.JSON(http.StatusOK, gin.H{"teams": teams})
 	})

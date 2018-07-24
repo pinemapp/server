@@ -10,6 +10,7 @@ func init() {
 	middlewares.Apply(r)
 
 	tr := r.Group("/api/teams")
+	tr.Use(middlewares.TeamAuthorizer())
 	{
 		tr.GET("", GetTeamsHandler)
 		tr.POST("", PostTeamsHandler)

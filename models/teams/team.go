@@ -4,16 +4,18 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/pinem/server/db"
 	"github.com/pinem/server/errors"
 	"github.com/pinem/server/models"
 	"github.com/pinem/server/utils"
+	"github.com/pinem/server/utils/auth"
 	"github.com/pinem/server/utils/messages"
 	"github.com/pinem/server/utils/validators"
 	"github.com/pinem/server/utils/validators/teams"
 )
 
-func Create(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, error) {
+func Create(userID uint, f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, error) {
 	if err := validators.Validate(f, msg); err != nil {
 		return nil, err
 	}
@@ -21,32 +23,33 @@ func Create(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, er
 	if err != nil {
 		return nil, err
 	}
-	if err := db.ORM.Create(team).Error; err != nil {
-		return nil, errors.ErrInternalServer
+	team, err = create(team, userID)
+	if err != nil {
+		return nil, err
 	}
 	return team, nil
 }
 
-func Update(id uint, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) (*models.Team, error) {
-	var team models.Team
-	if err := db.ORM.Where("id = ?", id).First(&team).Error; err != nil {
+func Update(userID, id uint, f *teamvalidator.UpdateTeamForm, msg *messages.Messages) (*models.Team, error) {
+	team, err := Find(userID, id)
+	if err != nil {
 		return nil, errors.ErrRecordNotFound
 	}
 
 	if err := validators.Validate(f, msg); err != nil {
 		return nil, err
 	}
-	if err := assign(&team, f, msg); err != nil {
+	if err := assign(team, f, msg); err != nil {
 		return nil, err
 	}
-	if err := db.ORM.Save(&team).Error; err != nil {
+	if err := db.ORM.Save(team).Error; err != nil {
 		return nil, errors.GetDBError(err)
 	}
-	return &team, nil
+	return team, nil
 }
 
-func Delete(id uint) error {
-	team, err := Find(id)
+func Delete(userID, id uint) error {
+	team, err := Find(userID, id)
 	if err != nil {
 		return err
 	}
@@ -57,23 +60,49 @@ func Delete(id uint) error {
 }
 
 func DeleteFromContext(c *gin.Context) error {
+	user := auth.GetUserFromContext(c)
 	teamID := utils.GetIntParam("team_id", c)
-	return Delete(teamID)
+	return Delete(user.ID, teamID)
 }
 
 func CreateFromContext(c *gin.Context) (*models.Team, error) {
 	var f teamvalidator.TeamForm
 	msg := messages.GetMessages(c)
+	user := auth.GetUserFromContext(c)
 	c.Bind(&f)
-	return Create(&f, msg)
+	return Create(user.ID, &f, msg)
 }
 
 func UpdateFromContext(c *gin.Context) (*models.Team, error) {
 	var f teamvalidator.UpdateTeamForm
 	msg := messages.GetMessages(c)
 	c.Bind(&f)
+
+	user := auth.GetUserFromContext(c)
 	teamID := utils.GetIntParam("team_id", c)
-	return Update(teamID, &f, msg)
+	return Update(user.ID, teamID, &f, msg)
+}
+
+func create(team *models.Team, userID uint) (*models.Team, error) {
+	err := db.Transaction(db.ORM, func(tx *gorm.DB) error {
+		if err := tx.Create(team).Error; err != nil {
+			return errors.GetDBError(err)
+		}
+
+		teamUser := models.TeamUser{
+			TeamID: team.ID,
+			UserID: userID,
+			Role:   models.TeamLeader,
+		}
+		if err := tx.Create(&teamUser).Error; err != nil {
+			return errors.GetDBError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return team, nil
 }
 
 func build(f *teamvalidator.TeamForm, msg *messages.Messages) (*models.Team, error) {

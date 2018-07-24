@@ -10,6 +10,7 @@ func init() {
 	middlewares.Apply(r)
 
 	br := r.Group("/api/boards")
+	br.Use(middlewares.Authorizer())
 	{
 		br.GET("", GetBoardsHandler)
 		br.POST("", PostBoardsHandler)

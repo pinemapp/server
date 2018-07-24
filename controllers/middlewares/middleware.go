@@ -13,6 +13,6 @@ func Apply(engine *gin.Engine) {
 	once.Do(func() {
 		router.Get().Use(Cors())
 		router.Get().Use(NotFound())
-		router.Get().Use(Authorizer(router.GetEnforcer()))
+		router.Get().Use(SetUser())
 	})
 }

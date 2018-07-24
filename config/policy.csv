@@ -1,11 +1,9 @@
 p, admin, /*, *
 
-p, anonymous, /api/users, POST
-p, anonymous, /token, POST
-
-p, user, /verify_token, GET
 p, user, /api/boards, GET
 p, user, /api/boards, POST
+p, user, /api/teams, GET
+p, user, /api/teams, POST
 
 p, owner, /api/boards/*, *
 p, owner, /api/boards/*/members/*, *
@@ -17,3 +15,6 @@ p, member, /api/boards/*/lists, *
 p, member, /api/boards/*/tasks, *
 
 p, visitor, /api/boards/*, GET
+
+p, leader, /api/teams/*, *
+p, member, /api/teams/*, GET

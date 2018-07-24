@@ -2,6 +2,7 @@ package auth
 
 import (
 	"regexp"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,12 @@ import (
 const userKey = "pinem.current_user"
 
 var bearerRegex = regexp.MustCompile(`^Bearer (.*)$`)
+
+func init() {
+	jwt.TimeFunc = func() time.Time {
+		return time.Now().In(config.Get().GetLocation())
+	}
+}
 
 func Verify(c *gin.Context) (*models.Claims, error) {
 	content := c.GetHeader("Authorization")

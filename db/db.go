@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/pinem/server/config"
@@ -10,6 +12,10 @@ var ORM *gorm.DB
 
 func InitORM() error {
 	conf := config.Get()
+	gorm.NowFunc = func() time.Time {
+		return time.Now().In(conf.GetLocation())
+	}
+
 	db, err := gorm.Open("postgres", conf.DbString())
 	if err != nil {
 		return err

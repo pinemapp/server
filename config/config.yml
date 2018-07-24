@@ -20,5 +20,8 @@ i18n:
   default: en
   dir: config/locale
 
+time:
+  zone: UTC
+
 token:
   expires_at: 2592000

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mgutz/str"
+	"github.com/pinem/server/config"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().In(config.Get().GetLocation()).UnixNano())
 }
 
 func GetIntParam(key string, c *gin.Context) uint {

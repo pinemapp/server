@@ -54,7 +54,7 @@ func GetVerifyTokenHandler(c *gin.Context) {
 
 func generateToken(user *models.User) (string, error) {
 	conf := config.Get()
-	now := time.Now().Unix()
+	now := time.Now().In(conf.GetLocation()).Unix()
 	claims := models.Claims{
 		models.UserClaims{
 			ID:    user.ID,

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 )
 
 type Config struct {
@@ -14,6 +15,7 @@ type Config struct {
 	I18n   i18nStruct  `yaml:"i18n"`
 	Redis  redisStruct `yaml:"redis"`
 	Token  tokenStruct `yaml:"token"`
+	Time   timeStruct  `yaml:"time"`
 }
 
 type dbStruct struct {
@@ -40,6 +42,10 @@ type tokenStruct struct {
 	ExpiresAt int64 `yaml:"expires_at"`
 }
 
+type timeStruct struct {
+	Zone string `yaml:"zone"`
+}
+
 func (c *Config) ServerAddr() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
@@ -47,4 +53,12 @@ func (c *Config) ServerAddr() string {
 func (c *Config) DbString() string {
 	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=disable",
 		c.DB.Host, c.DB.Port, c.DB.Name, c.DB.User, c.DB.Password)
+}
+
+func (c *Config) GetLocation() *time.Location {
+	loc, err := time.LoadLocation(c.Time.Zone)
+	if err != nil {
+		panic(err)
+	}
+	return loc
 }
